@@ -3,6 +3,8 @@ x = csvread('X.csv',1,0);
 y = csvread('y.csv',1,0);
 % Center data
 x = bsxfun(@minus, x, mean(x));
+x = [x, ones(length(x),1)];
+
 %% Set params
 C = 10;
 ep = 0.1;
@@ -14,7 +16,7 @@ beta = 0.9;
 %u=5;
 t = 5;
 u = 20;
-m = 10*n;
+m = 3*n;
 fstar = 729.652;
 gstar = 0.365;
 
@@ -27,7 +29,7 @@ while m/t > thresh
     fprintf('===== iter %d, t = %d =====\n', i, t);
     assert( all(abs(y-x*w_xi(1:dplus1)) <= ep*ones(n,1)+w_xi(dplus1+1:end))==1);
     assert( all(w_xi(dplus1+1:end) >= zeros(n,1))==1);
-    
+    g(i) = 1/n*sum(y-x*w_xi(1:dplus1));
     %Newton's Method
     diff = ones(dplus1+n,1);
     while abs(diff) > thresh
@@ -42,7 +44,7 @@ while m/t > thresh
         while bar_obj_val(x,y,ep,w_xi_update,t,C) > obj_val + alpha*step*gradf'*v
             step = beta*step;
             w_xi_update = w_xi + step*v;
-            fprintf(' ==> step: %d, backtrack cond: %f, obs_val_update: %f\n',step, bar_obj_val(x,y,ep,w_xi_update,t,C),obj_val + alpha*step*gradf'*v);
+            %fprintf(' ==> step: %d, backtrack cond: %f, obs_val_update: %f\n',step, bar_obj_val(x,y,ep,w_xi_update,t,C),obj_val + alpha*step*gradf'*v);
         end
         
         w_xi = w_xi_update;    
